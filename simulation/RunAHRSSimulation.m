@@ -3,6 +3,7 @@ function results = RunAHRSSimulation(config)
     rng(config.RandomSeed)
 
     sensorMode = lower(config.SensorMode);
+    filterMode = lower(config.FilterMode);
 
     if strcmp(sensorMode, 'single')
         imu = ConfigureIMU(config);
@@ -12,7 +13,13 @@ function results = RunAHRSSimulation(config)
         error('config.SensorMode must be either ''single'' or ''dual''.')
     end
 
-    ekf = ConfigureAttitudeEKF(config);
+    if strcmp(filterMode, 'ekf')
+        ahrs = ConfigureAttitudeEKF(config);
+    elseif strcmp(filterMode, 'mahony')
+        ahrs = ConfigureMahonyAHRS(config);
+    else
+        error('config.FilterMode must be either ''ekf'' or ''mahony''.')
+    end
 
     time = config.Time;
     nSteps = config.NumberOfSteps;
@@ -57,7 +64,7 @@ function results = RunAHRSSimulation(config)
     magDirectionErrorCalibrated = zeros(1, nSteps);
 
     qTrue(1, :) = [1 0 0 0];
-    qEst(1, :) = ekf.Quaternion;
+    qEst(1, :) = ahrs.Quaternion;
 
     for k = 1:nSteps
 
@@ -142,10 +149,10 @@ function results = RunAHRSSimulation(config)
         magDirectionErrorRaw(k) = VectorAngle(magFieldTrue(:, k), magMeas(:, k));
         magDirectionErrorCalibrated(k) = VectorAngle(magFieldTrue(:, k), magMeasCalibrated(:, k));
 
-        ekf.Update(accelMeas(:, k), gyroMeas(:, k), magMeasCalibrated(:, k));
+        ahrs.Update(accelMeas(:, k), gyroMeas(:, k), magMeasCalibrated(:, k));
 
-        qEst(k, :) = ekf.Quaternion;
-        gyroBiasEst(:, k) = ekf.GyroBias;
+        qEst(k, :) = ahrs.Quaternion;
+        gyroBiasEst(:, k) = ahrs.GyroBias;
 
         eulerTrue(:, k) = QuatToEuler(qTrue(k, :));
         eulerEst(:, k) = QuatToEuler(qEst(k, :));
@@ -163,6 +170,7 @@ function results = RunAHRSSimulation(config)
 
     results.Config = config;
     results.SensorMode = sensorMode;
+    results.FilterMode = filterMode;
     results.Time = time;
 
     results.AngularRateTrue = angularRateTrue;

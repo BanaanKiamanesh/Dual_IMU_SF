@@ -1,6 +1,7 @@
 function config = BuildConfig()
 
     config.SensorMode = 'dual';
+    config.FilterMode = 'ekf';
 
     config.RandomSeed = 2;
 
@@ -99,5 +100,14 @@ function config = BuildConfig()
 
     config.EKF.AccelNormGate = [7.0, 12.5];
     config.EKF.MagNormGate = [0.5, 1.5];
+
+    config.Mahony.InitialQuaternion = [1 0 0 0];
+    config.Mahony.InitialGyroBias = zeros(3, 1);
+
+    config.Mahony.Kp = 2.0;
+    config.Mahony.Ki = 0.05;
+
+    config.Mahony.AccelNormGate = [7.0, 12.5];
+    config.Mahony.MagNormGate = [0.5, 1.5];
 
 end

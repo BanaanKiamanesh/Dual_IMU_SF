@@ -8,6 +8,7 @@ addpath(genpath(projectRoot))
 %% Config
 config = BuildConfig();
 config.SensorMode = 'dual';
+config.FilterMode = 'ekf';
 
 %% Simulation
 numberOfRuns = 50;
@@ -51,7 +52,7 @@ end
 
 
 %% Results
-fprintf('Dual-IMU Monte Carlo runs: %d\n\n', numberOfRuns)
+fprintf('Dual-IMU %s Monte Carlo runs: %d\n\n', upper(config.FilterMode), numberOfRuns)
 
 fprintf('Roll RMSE  mean/std [deg]: %.4f / %.4f\n', mean(rollRmseDeg), std(rollRmseDeg))
 fprintf('Pitch RMSE mean/std [deg]: %.4f / %.4f\n', mean(pitchRmseDeg), std(pitchRmseDeg))
@@ -81,18 +82,18 @@ histogram(yawRmseDeg)
 grid on
 xlabel('Yaw RMSE [deg]')
 ylabel('Count')
-title('Dual-IMU Monte Carlo Yaw RMSE')
+title(['Dual-IMU ', upper(config.FilterMode), ' Monte Carlo Yaw RMSE'])
 
 figure
 histogram(rollRmseDeg)
 grid on
 xlabel('Roll RMSE [deg]')
 ylabel('Count')
-title('Dual-IMU Monte Carlo Roll RMSE')
+title(['Dual-IMU ', upper(config.FilterMode), ' Monte Carlo Roll RMSE'])
 
 figure
 histogram(pitchRmseDeg)
 grid on
 xlabel('Pitch RMSE [deg]')
 ylabel('Count')
-title('Dual-IMU Monte Carlo Pitch RMSE')
+title(['Dual-IMU ', upper(config.FilterMode), ' Monte Carlo Pitch RMSE'])

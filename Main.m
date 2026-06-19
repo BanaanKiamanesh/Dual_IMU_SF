@@ -2,15 +2,19 @@ clear
 close all
 clc
 
+
 projectRoot = fileparts(mfilename('fullpath'));
 addpath(genpath(projectRoot))
 
-%% Config and Simulation
+%% Config
 config = BuildConfig();
-config.SensorMode = 'single';
 
+sensorMode = 'single';
+filterMode = 'mahony';
+
+%% Simulation
 results = RunAHRSSimulation(config);
 
-%% Show Results
+%% Results
 PrintResults(results)
 PlotResults(results)

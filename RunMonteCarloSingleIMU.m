@@ -7,15 +7,20 @@ addpath(genpath(projectRoot))
 
 %% Config
 config = BuildConfig();
-numberOfRuns = 50;
+config.SensorMode = 'single';
+config.FilterMode = 'ekf';
 
 %% Simulation
+numberOfRuns = 50;
+
 rollRmseDeg = zeros(numberOfRuns, 1);
 pitchRmseDeg = zeros(numberOfRuns, 1);
 yawRmseDeg = zeros(numberOfRuns, 1);
+
 finalRollErrorDeg = zeros(numberOfRuns, 1);
 finalPitchErrorDeg = zeros(numberOfRuns, 1);
 finalYawErrorDeg = zeros(numberOfRuns, 1);
+
 finalGyroBiasErrorDegSec = zeros(3, numberOfRuns);
 
 for runIndex = 1:numberOfRuns
@@ -37,9 +42,8 @@ for runIndex = 1:numberOfRuns
 
 end
 
-
 %% Results
-fprintf('Monte Carlo runs: %d\n\n', numberOfRuns)
+fprintf('Single-IMU %s Monte Carlo runs: %d\n\n', upper(config.FilterMode), numberOfRuns)
 
 fprintf('Roll RMSE  mean/std [deg]: %.4f / %.4f\n', mean(rollRmseDeg), std(rollRmseDeg))
 fprintf('Pitch RMSE mean/std [deg]: %.4f / %.4f\n', mean(pitchRmseDeg), std(pitchRmseDeg))
@@ -63,18 +67,18 @@ histogram(yawRmseDeg)
 grid on
 xlabel('Yaw RMSE [deg]')
 ylabel('Count')
-title('Monte Carlo Yaw RMSE')
+title(['Single-IMU ', upper(config.FilterMode), ' Monte Carlo Yaw RMSE'])
 
 figure
 histogram(rollRmseDeg)
 grid on
 xlabel('Roll RMSE [deg]')
 ylabel('Count')
-title('Monte Carlo Roll RMSE')
+title(['Single-IMU ', upper(config.FilterMode), ' Monte Carlo Roll RMSE'])
 
 figure
 histogram(pitchRmseDeg)
 grid on
 xlabel('Pitch RMSE [deg]')
 ylabel('Count')
-title('Monte Carlo Pitch RMSE')
+title(['Single-IMU ', upper(config.FilterMode), ' Monte Carlo Pitch RMSE'])
