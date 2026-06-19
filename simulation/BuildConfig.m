@@ -1,5 +1,7 @@
 function config = BuildConfig()
 
+    config.SensorMode = 'dual';
+
     config.RandomSeed = 2;
 
     config.SampleTime = 0.01;
@@ -12,39 +14,75 @@ function config = BuildConfig()
     config.MagneticFieldNav = [0.45; 0.05; 0.89];
     config.MagneticFieldNav = config.MagneticFieldNav / norm(config.MagneticFieldNav);
 
-    config.MagBiasCalibration = [0.02; -0.01; 0.015];
-    config.MagScaleFactorCalibration = [1.010; 0.990; 1.005];
+    imu1.AccelWhiteNoiseStd = 4.7e-2 * ones(3, 1);
+    imu1.GyroWhiteNoiseStd = 3.33e-2 * ones(3, 1);
+    imu1.MagWhiteNoiseStd = 0.010 * ones(3, 1);
 
-    config.IMU.AccelWhiteNoiseStd = 4.7e-2 * ones(3, 1);
-    config.IMU.GyroWhiteNoiseStd = 3.33e-2 * ones(3, 1);
-    config.IMU.MagWhiteNoiseStd = 0.01 * ones(3, 1);
+    imu1.AccelBiasInstabilityStd = 7.36e-4 * ones(3, 1);
+    imu1.GyroBiasInstabilityStd = 1.8e-3 * ones(3, 1);
+    imu1.MagBiasInstabilityStd = zeros(3, 1);
 
-    config.IMU.AccelBiasInstabilityStd = 7.36e-4 * ones(3, 1);
-    config.IMU.GyroBiasInstabilityStd = 1.8e-3 * ones(3, 1);
-    config.IMU.MagBiasInstabilityStd = zeros(3, 1);
+    imu1.AccelBias = [0.03; -0.02; 0.04];
+    imu1.GyroBias = deg2rad([0.4; -0.3; 0.2]);
+    imu1.MagBias = [0.02; -0.01; 0.015];
 
-    config.IMU.AccelBias = [0.03; -0.02; 0.04];
-    config.IMU.GyroBias = deg2rad([0.4; -0.3; 0.2]);
-    config.IMU.MagBias = config.MagBiasCalibration;
+    imu1.AccelScaleFactor = [1.002; 0.998; 1.001];
+    imu1.GyroScaleFactor = [1.001; 0.999; 1.002];
+    imu1.MagScaleFactor = [1.010; 0.990; 1.005];
 
-    config.IMU.AccelScaleFactor = [1.002; 0.998; 1.001];
-    config.IMU.GyroScaleFactor = [1.001; 0.999; 1.002];
-    config.IMU.MagScaleFactor = config.MagScaleFactorCalibration;
+    imu1.AccelRange = 16 * 9.81;
+    imu1.GyroRange = deg2rad(300);
+    imu1.MagRange = 2.0;
 
-    config.IMU.AccelRange = 16 * 9.81;
-    config.IMU.GyroRange = deg2rad(300);
-    config.IMU.MagRange = 2.0;
+    imu1.AccelBits = 16;
+    imu1.GyroBits = 16;
+    imu1.MagBits = 16;
 
-    config.IMU.AccelBits = 16;
-    config.IMU.GyroBits = 16;
-    config.IMU.MagBits = 16;
+    imu1.EnableBias = true;
+    imu1.EnableWhiteNoise = true;
+    imu1.EnableBiasInstability = true;
+    imu1.EnableScaleFactor = true;
+    imu1.EnableSaturation = true;
+    imu1.EnableQuantization = true;
 
-    config.IMU.EnableBias = true;
-    config.IMU.EnableWhiteNoise = true;
-    config.IMU.EnableBiasInstability = true;
-    config.IMU.EnableScaleFactor = true;
-    config.IMU.EnableSaturation = true;
-    config.IMU.EnableQuantization = true;
+    imu2 = imu1;
+
+    imu2.AccelWhiteNoiseStd = 5.2e-2 * ones(3, 1);
+    imu2.GyroWhiteNoiseStd = 2.9e-2 * ones(3, 1);
+    imu2.MagWhiteNoiseStd = 0.012 * ones(3, 1);
+
+    imu2.AccelBias = [-0.025; 0.035; -0.015];
+    imu2.GyroBias = deg2rad([-0.25; 0.20; -0.15]);
+    imu2.MagBias = [-0.015; 0.012; -0.010];
+
+    imu2.AccelScaleFactor = [0.999; 1.003; 0.997];
+    imu2.GyroScaleFactor = [0.998; 1.002; 0.999];
+    imu2.MagScaleFactor = [0.995; 1.008; 0.992];
+
+    config.IMU = imu1;
+    config.IMU.MagBiasCalibration = imu1.MagBias;
+    config.IMU.MagScaleFactorCalibration = imu1.MagScaleFactor;
+
+    config.DualIMU.IMU1 = imu1;
+    config.DualIMU.IMU2 = imu2;
+
+    config.DualIMU.MagBiasCalibration1 = imu1.MagBias;
+    config.DualIMU.MagBiasCalibration2 = imu2.MagBias;
+
+    config.DualIMU.MagScaleFactorCalibration1 = imu1.MagScaleFactor;
+    config.DualIMU.MagScaleFactorCalibration2 = imu2.MagScaleFactor;
+
+    config.DualIMU.AccelWeights = [ ...
+        1 ./ imu1.AccelWhiteNoiseStd.^2, ...
+        1 ./ imu2.AccelWhiteNoiseStd.^2];
+
+    config.DualIMU.GyroWeights = [ ...
+        1 ./ imu1.GyroWhiteNoiseStd.^2, ...
+        1 ./ imu2.GyroWhiteNoiseStd.^2];
+
+    config.DualIMU.MagWeights = [ ...
+        1 ./ imu1.MagWhiteNoiseStd.^2, ...
+        1 ./ imu2.MagWhiteNoiseStd.^2];
 
     config.EKF.InitialState = [1; 0; 0; 0; 0; 0; 0];
 
@@ -56,8 +94,8 @@ function config = BuildConfig()
         1e-7, 1e-7, 1e-7, 1e-7, ...
         3.5e-8, 3.5e-8, 3.5e-8]);
 
-    config.EKF.AccelMeasurementVariance = 0.015^2 * ones(3, 1);
-    config.EKF.MagMeasurementVariance = 0.012^2 * ones(3, 1);
+    config.EKF.AccelMeasurementVariance = 0.011^2 * ones(3, 1);
+    config.EKF.MagMeasurementVariance = 0.009^2 * ones(3, 1);
 
     config.EKF.AccelNormGate = [7.0, 12.5];
     config.EKF.MagNormGate = [0.5, 1.5];

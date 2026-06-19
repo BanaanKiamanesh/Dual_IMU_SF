@@ -5,11 +5,12 @@ clc
 projectRoot = fileparts(mfilename('fullpath'));
 addpath(genpath(projectRoot))
 
-%% Param Declaration and Run
+%% Config and Simulation
 config = BuildConfig();
+config.SensorMode = 'single';
 
 results = RunAHRSSimulation(config);
 
-%% Results
+%% Show Results
 PrintResults(results)
 PlotResults(results)

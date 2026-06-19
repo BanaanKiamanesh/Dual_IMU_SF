@@ -5,7 +5,7 @@ clc
 projectRoot = fileparts(mfilename('fullpath'));
 addpath(genpath(projectRoot))
 
-%% Parameter Declaration
+%% Config
 config = BuildConfig();
 numberOfRuns = 50;
 
