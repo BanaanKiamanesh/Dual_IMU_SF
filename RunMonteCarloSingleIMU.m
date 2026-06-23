@@ -8,7 +8,7 @@ addpath(genpath(projectRoot))
 %% Config
 config = BuildConfig();
 config.SensorMode = 'single';
-config.FilterMode = 'ekf';
+config.FilterMode = 'eskf';
 
 %% Simulation
 numberOfRuns = 50;

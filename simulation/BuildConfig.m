@@ -61,6 +61,7 @@ function config = BuildConfig()
     imu2.MagScaleFactor = [0.995; 1.008; 0.992];
 
     config.IMU = imu1;
+
     config.IMU.MagBiasCalibration = imu1.MagBias;
     config.IMU.MagScaleFactorCalibration = imu1.MagScaleFactor;
 
@@ -100,6 +101,23 @@ function config = BuildConfig()
 
     config.EKF.AccelNormGate = [7.0, 12.5];
     config.EKF.MagNormGate = [0.5, 1.5];
+
+    config.ESKF.InitialQuaternion = [1 0 0 0];
+    config.ESKF.InitialGyroBias = zeros(3, 1);
+
+    config.ESKF.InitialErrorCovariance = diag([ ...
+        1e-3, 1e-3, 1e-3, ...
+        1e-2, 1e-2, 1e-2]);
+
+    config.ESKF.ProcessNoise = diag([ ...
+        1e-7, 1e-7, 1e-7, ...
+        3.5e-8, 3.5e-8, 3.5e-8]);
+
+    config.ESKF.AccelMeasurementVariance = config.EKF.AccelMeasurementVariance;
+    config.ESKF.MagMeasurementVariance = config.EKF.MagMeasurementVariance;
+
+    config.ESKF.AccelNormGate = config.EKF.AccelNormGate;
+    config.ESKF.MagNormGate = config.EKF.MagNormGate;
 
     config.Mahony.InitialQuaternion = [1 0 0 0];
     config.Mahony.InitialGyroBias = zeros(3, 1);

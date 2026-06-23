@@ -9,8 +9,8 @@ addpath(genpath(projectRoot))
 %% Config
 config = BuildConfig();
 
-sensorMode = 'single';
-filterMode = 'mahony';
+config.SensorMode = 'dual';
+config.FilterMode = 'eskf';
 
 %% Simulation
 results = RunAHRSSimulation(config);
