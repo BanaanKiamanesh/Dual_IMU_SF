@@ -15,10 +15,12 @@ function results = RunAHRSSimulation(config)
 
     if strcmp(filterMode, 'ekf')
         ahrs = ConfigureAttitudeEKF(config);
+    elseif strcmp(filterMode, 'eskf')
+        ahrs = ConfigureAttitudeESKF(config);
     elseif strcmp(filterMode, 'mahony')
         ahrs = ConfigureMahonyAHRS(config);
     else
-        error('config.FilterMode must be either ''ekf'' or ''mahony''.')
+        error('config.FilterMode must be ''ekf'', ''eskf'', or ''mahony''.')
     end
 
     time = config.Time;
@@ -36,10 +38,13 @@ function results = RunAHRSSimulation(config)
 
     accelMeas1 = zeros(3, nSteps);
     accelMeas2 = zeros(3, nSteps);
+
     gyroMeas1 = zeros(3, nSteps);
     gyroMeas2 = zeros(3, nSteps);
+
     magMeas1Raw = zeros(3, nSteps);
     magMeas2Raw = zeros(3, nSteps);
+
     magMeas1Calibrated = zeros(3, nSteps);
     magMeas2Calibrated = zeros(3, nSteps);
 
@@ -52,6 +57,7 @@ function results = RunAHRSSimulation(config)
 
     gyroBiasTrue = zeros(3, nSteps);
     gyroBiasEst = zeros(3, nSteps);
+
     gyroBiasTrue1 = zeros(3, nSteps);
     gyroBiasTrue2 = zeros(3, nSteps);
 
@@ -73,7 +79,8 @@ function results = RunAHRSSimulation(config)
         angularRateTrue(:, k) = GenerateTrueMotion(t);
 
         [specificForceTrue(:, k), magFieldTrue(:, k)] = GenerateTrueSensorInputs( ...
-            qTrue(k, :), config);
+            qTrue(k, :), ...
+            config);
 
         if strcmp(sensorMode, 'single')
 
@@ -146,10 +153,18 @@ function results = RunAHRSSimulation(config)
 
         end
 
-        magDirectionErrorRaw(k) = VectorAngle(magFieldTrue(:, k), magMeas(:, k));
-        magDirectionErrorCalibrated(k) = VectorAngle(magFieldTrue(:, k), magMeasCalibrated(:, k));
+        magDirectionErrorRaw(k) = VectorAngle( ...
+            magFieldTrue(:, k), ...
+            magMeas(:, k));
 
-        ahrs.Update(accelMeas(:, k), gyroMeas(:, k), magMeasCalibrated(:, k));
+        magDirectionErrorCalibrated(k) = VectorAngle( ...
+            magFieldTrue(:, k), ...
+            magMeasCalibrated(:, k));
+
+        ahrs.Update( ...
+            accelMeas(:, k), ...
+            gyroMeas(:, k), ...
+            magMeasCalibrated(:, k));
 
         qEst(k, :) = ahrs.Quaternion;
         gyroBiasEst(:, k) = ahrs.GyroBias;
@@ -163,14 +178,19 @@ function results = RunAHRSSimulation(config)
             WrapToPi(eulerEst(3, k) - eulerTrue(3, k))];
 
         if k < nSteps
-            qTrue(k + 1, :) = IntegrateQuaternion(qTrue(k, :), angularRateTrue(:, k), dt);
+            qTrue(k + 1, :) = IntegrateQuaternion( ...
+                qTrue(k, :), ...
+                angularRateTrue(:, k), ...
+                dt);
         end
 
     end
 
     results.Config = config;
+
     results.SensorMode = sensorMode;
     results.FilterMode = filterMode;
+
     results.Time = time;
 
     results.AngularRateTrue = angularRateTrue;
@@ -184,10 +204,13 @@ function results = RunAHRSSimulation(config)
 
     results.AccelMeas1 = accelMeas1;
     results.AccelMeas2 = accelMeas2;
+
     results.GyroMeas1 = gyroMeas1;
     results.GyroMeas2 = gyroMeas2;
+
     results.MagMeas1Raw = magMeas1Raw;
     results.MagMeas2Raw = magMeas2Raw;
+
     results.MagMeas1Calibrated = magMeas1Calibrated;
     results.MagMeas2Calibrated = magMeas2Calibrated;
 
@@ -200,6 +223,7 @@ function results = RunAHRSSimulation(config)
 
     results.GyroBiasTrue = gyroBiasTrue;
     results.GyroBiasEst = gyroBiasEst;
+
     results.GyroBiasTrue1 = gyroBiasTrue1;
     results.GyroBiasTrue2 = gyroBiasTrue2;
 
